@@ -1,0 +1,35 @@
+/**
+* name 
+*/
+module constants{
+	export class MessageId{
+		public static GAME_START = 1; //游戏开始
+		public static GAME_OVER = 2; //游戏结束
+		public static GIVE_CARD = 3; //发牌
+		public static ASK_DEALER = 4; //询问抢庄
+		public static RISE_DEALER = 5; //抢庄回复
+		public static PUB_DEALER = 6; //公布庄家
+		public static GIVE_POCKET = 7; //给庄家发底牌
+		public static ASK_MAIN = 8; //要求庄家喊主
+		public static PUB_MAIN = 9; //公布主牌花色
+		public static ASK_POCKET = 10; //要求庄家放置底牌
+		public static PUT_POCKET = 11; //庄家放置底牌
+		public static OUT_TURN = 12; //轮到出牌
+		public static CARD_OUT = 13; //玩家出牌
+		public static PUB_CARD_OUT = 14; //广播玩家出牌
+		public static ROUND_RESULT = 15; //广播一轮结算结果
+		public static DEALER_SURRENDER = 16; //庄家投降
+
+		private static _maps:Object;
+
+		public static init()
+		{
+			MessageId._maps = {};
+		}
+		
+		public static GetProtocolNameById(pid:number):Function|null
+		{
+			return MessageId._maps[pid] ? MessageId._maps[pid] : null;
+		}
+	}
+}
