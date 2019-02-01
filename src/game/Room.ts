@@ -15,6 +15,7 @@ module game{
 		protected mySeat:Seat = null;
 		protected leftSeat:Seat = null;
 		protected rightSeat:Seat = null;
+		protected oppositeSeat:Seat = null;
 
 		protected mySeatId:number = 0;
 		protected seatMap:Object = null;
@@ -31,6 +32,16 @@ module game{
 
 		constructor(){
 
+		}
+
+		public getIsSingle():boolean
+		{
+			return this.isSingle;
+		}
+
+		public setIsSingle(val:boolean):void
+		{
+			this.isSingle = val;
 		}
 
 		public login():void
@@ -94,12 +105,36 @@ module game{
 			game.PageManager.GetInstance().showEnter();
 		}
 
+		public startSingle():void
+		{
+			this.setIsSingle(true);
+			PageManager.GetInstance().showRoom();
+
+			PageManager.GetInstance().getRoomView().clearAll();
+
+			//创造虚拟用户
+			this.mockSeat();
+
+			//开始游戏
+			GameLogic.GetInstance().startGame();
+		}
+
+		public mockSeat():void
+		{
+			
+		}
+
 		public isTurn():boolean
 		{
 			return false;
 		}
 
 		public calcuOutStatus():void
+		{
+
+		}
+
+		public confirmCardOut():void
 		{
 
 		}

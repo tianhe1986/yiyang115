@@ -11,7 +11,7 @@ module view{
 
 		protected enterSingle():void
 		{
-			//game.Room.GetInstance().startSingle();
+			game.Room.GetInstance().startSingle();
 		}
 
 		public showRule():void
