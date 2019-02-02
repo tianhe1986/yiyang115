@@ -170,6 +170,12 @@ module game{
 					this.scoreMap[3] = 100;
 					this.scoreMap[4] = 100;
 				}
+
+				for (let i = 1; i <= 4; i++) {
+					if (this.scoreMap[i] == undefined) {
+						this.scoreMap[i] = 100;
+					}
+				}
 			}
 
 			return this.scoreMap;
