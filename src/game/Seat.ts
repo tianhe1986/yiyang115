@@ -52,5 +52,34 @@ module game{
 		{
 			return this.cardManager;
 		}
+
+		public refreshSeatInfo():void
+		{
+			let seatView = this.getSeatView();
+			if (seatView === null) {
+				return;
+			}
+			(seatView.getChildByName("nickname") as Laya.Text).text = this.getUserInfo().getNickname();
+			(seatView.getChildByName("avatar") as Laya.Image).skin = this.getUserInfo().getAvatar();
+			(seatView.getChildByName("score") as Laya.Text).text = "" + this.getUserInfo().getScore();
+			(seatView.getChildByName("cardNum") as Laya.Text).text = "" + this.getCardManager().getCardNum();
+		}
+
+		public refreshCard(cardIds:Array<number>):void
+		{
+			this.cardManager.refreshCard(cardIds, this.getSeatId() == game.Room.GetInstance().getMySeatId());
+			this.refreshSeatInfo();
+		}
+
+		public setCardNum(cardNum:number):void
+		{
+			this.cardManager.setCardNum(cardNum);
+			this.refreshSeatInfo();
+		}
+
+		public getCardNum():number
+		{
+			return this.cardManager.getCardNum();
+		}
 	}
 }

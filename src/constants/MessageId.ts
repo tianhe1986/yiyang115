@@ -25,6 +25,8 @@ module constants{
 		public static init()
 		{
 			MessageId._maps = {};
+			MessageId._maps[MessageId.GAME_START] = message.GameStart;
+			MessageId._maps[MessageId.GIVE_CARD] = message.GiveCard;
 		}
 		
 		public static GetProtocolNameById(pid:number):Function|null
