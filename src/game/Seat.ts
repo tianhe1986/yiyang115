@@ -65,6 +65,13 @@ module game{
 			(seatView.getChildByName("cardNum") as Laya.Text).text = "" + this.getCardManager().getCardNum();
 		}
 
+		//增加手牌，新增的手牌默认为选中状态
+		public addCard(cardIds:Array<number>):void
+		{
+			this.cardManager.addCard(cardIds, this.getSeatId() == game.Room.GetInstance().getMySeatId());
+			this.refreshSeatInfo();
+		}
+
 		public refreshCard(cardIds:Array<number>):void
 		{
 			this.cardManager.refreshCard(cardIds, this.getSeatId() == game.Room.GetInstance().getMySeatId());

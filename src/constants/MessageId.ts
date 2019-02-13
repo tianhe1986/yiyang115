@@ -32,8 +32,8 @@ module constants{
 			MessageId._maps[MessageId.ASK_DEALER] = message.AskDealer;
 			MessageId._maps[MessageId.RISE_DEALER] = message.RiseDealer;
 			MessageId._maps[MessageId.PUB_DEALER] = message.PubDealer;
-			/*MessageId._maps[MessageId.GIVE_POCKET] = message.GivePocket;
-			MessageId._maps[MessageId.ASK_MAIN] = message.AskMain;
+			MessageId._maps[MessageId.GIVE_POCKET] = message.GivePocket;
+			/*MessageId._maps[MessageId.ASK_MAIN] = message.AskMain;
 			MessageId._maps[MessageId.DEALER_GIVE_MAIN] = message.DealerGiveMain;
 			MessageId._maps[MessageId.PUB_MAIN] = message.PubMain;*/
 		}

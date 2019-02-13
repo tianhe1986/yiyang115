@@ -94,10 +94,10 @@ module game{
 			}
 
 			this.mockClearSeatCard();
-			this.processSeatCard(1, arr.splice(0, 13));
-			this.processSeatCard(2, arr.splice(0, 13));
-			this.processSeatCard(3, arr.splice(0, 13));
-			this.processSeatCard(4, arr.splice(0, 13));
+			this.processSeatCard(1, arr.splice(0, 12));
+			this.processSeatCard(2, arr.splice(0, 12));
+			this.processSeatCard(3, arr.splice(0, 12));
+			this.processSeatCard(4, arr.splice(0, 12));
 
 			this.mockPocketList = arr;
 		}
@@ -171,19 +171,35 @@ module game{
 		//给庄家发送底牌信息
 		public mockGivePocket():void
 		{
+			//玩家是庄，发送
+			if (this.mockDealerSeatId == Room.GetInstance().getMySeatId()) {
+				let msg:message.GivePocket= new message.GivePocket();
 
+				for (let i = 0, len = this.mockPocketList.length; i < len; i++) {
+					this.mockSeatCardMap[this.mockDealerSeatId][this.mockPocketList[i]] = true;
+				}
+
+				msg.cardIds = this.mockPocketList.slice();
+				this.mockPocketList = [];
+
+				this.mockSendMessage(msg);
+			} else { //TODO: 电脑是庄，直接计算主和底牌
+
+			}
 		}
 
 		//要求庄家喊主
 		public mockAskMain():void
 		{
-
+			//玩家是庄，发送
+			//TODO: 电脑是庄，直接公布主花色
 		}
 
 		//要求庄家放底牌
 		public mockAskPocket():void
 		{
-
+			//玩家是庄，发送
+			//TODO: 电脑是庄，直接放置底牌
 		}
 	}
 }

@@ -41,6 +41,25 @@ module game{
 			Laya.Pool.recover("card", card);
 		}
 
+		//增加手牌
+		public addCard(cardIds:Array<number>, isSelf:boolean = false):void
+		{
+			for (let i = 0, len = cardIds.length; i < len; i++) {
+				let newCard = this.getAvailableCard();
+				newCard.setCardId(cardIds[i]);
+				newCard.setIsSelect(isSelf);
+				this.cardList.push(newCard);
+			}
+			this.sortCardList();
+			this.setCardNum(this.cardList.length);
+
+			if (isSelf) {
+				this.refreshHandCardView();
+			} else {
+				
+			}
+		}
+
 		public refreshCard(cardIds:Array<number>, isSelf:boolean = false):void
 		{
 			for (let i = 0, len = this.cardList.length; i < len; i++) {
@@ -54,7 +73,7 @@ module game{
 				this.cardList.push(newCard);
 			}
 			this.sortCardList();
-			this.setCardNum(cardIds.length);
+			this.setCardNum(this.cardList.length);
 
 			if (isSelf) {
 				this.refreshHandCardView();
@@ -126,8 +145,8 @@ module game{
 				this.cardList[i].bindClick();
 				let cardView = this.cardList[i].getCardView();
 				handCardView.addChild(cardView);
-				cardView.y = 0;
-				cardView.x = i * 53;
+				cardView.y = this.cardList[i].getIsSelect() ? -75 : 0;
+				cardView.x = i * 42;
 			}
 		}
 	}

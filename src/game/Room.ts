@@ -285,6 +285,14 @@ module game{
 			PageManager.GetInstance().getRoomView().refreshMultiple(multiple);
 		}
 
+		//摸底牌
+		public receivePocket(cardIds:Array<number>):void
+		{
+			if (this.dealerSeatId == this.mySeatId) {
+				this.mySeat.addCard(cardIds);
+			}
+		}
+
 		public isTurn():boolean
 		{
 			return false;
