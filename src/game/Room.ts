@@ -21,6 +21,10 @@ module game{
 		protected seatMap:Object = null;
 		protected isGaming:boolean = false;
 
+		//庄家
+		protected dealerSeatId:number = 0;
+		//倍数
+		protected dealerMultiple:number = 0;
 		//主
 		protected mainType:number = 0;
 
@@ -268,6 +272,17 @@ module game{
 				}
 			}
 			this.setIsGaming(true);
+		}
+
+		//庄家结果公布处理
+		public pubDealer(seatId:number, multiple:number):void
+		{
+			this.dealerSeatId = seatId;
+			for (let handleSeatId in this.seatMap) {
+				this.seatMap[handleSeatId].hideDealer();
+			}
+			this.getSeat(seatId).showDealer();
+			PageManager.GetInstance().getRoomView().refreshMultiple(multiple);
 		}
 
 		public isTurn():boolean

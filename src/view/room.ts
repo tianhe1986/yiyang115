@@ -85,5 +85,11 @@ module view{
 			(this.rightSeat.getChildByName("outCard") as Laya.Box).visible = false;
 			(this.oppositeSeat.getChildByName("outCard") as Laya.Box).visible = false;
 		}
+
+		//刷新倍数
+		public refreshMultiple(multiple:number):void
+		{
+			this.multiple.text = "倍数：X" + multiple;
+		}
 	}
 }

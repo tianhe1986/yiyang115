@@ -10,11 +10,15 @@ module game{
 		protected static instance:GameLogic;
 
 		//发牌时的底牌
-		protected pocketList:Array<number> = [];
+		protected mockPocketList:Array<number> = [];
 		//庄家放置的底牌
-		protected mainPocketList:Array<number> = [];
+		protected mockDealerPocketList:Array<number> = [];
 		//主
-		protected mainType:number = 0;
+		protected mockMainType:number = 0;
+		//庄家座位
+		protected mockDealerSeatId:number = 0;
+		//倍数
+		protected mockDealerMultiple:number = 0;
 		
 		public static GetInstance():GameLogic
 		{
@@ -51,9 +55,8 @@ module game{
 			this.mockGiveCard();
 
 			//TODO 抢庄消息，这里先直接假定玩家是庄
-			this.mockMainClear();
-			this.mockAskMain();
-			this.mockMainResult(1, 5);
+			this.mockDealerClear();
+			this.mockAskDealer();
 		}
 
 		public mockStart():void
@@ -96,7 +99,7 @@ module game{
 			this.processSeatCard(3, arr.splice(0, 13));
 			this.processSeatCard(4, arr.splice(0, 13));
 
-			this.pocketList = arr;
+			this.mockPocketList = arr;
 		}
 
 		protected processSeatCard(seatId:number, cardIds:Array<number>):void
@@ -126,25 +129,61 @@ module game{
 		}
 
 		//抢庄相关信息清除
-		public mockMainClear():void
+		public mockDealerClear():void
 		{
-
+			this.mockDealerSeatId = 0;
+			this.mockDealerMultiple = 0;
 		}
 
 		//开始抢庄
-		public mockAskMain():void
+		public mockAskDealer():void
 		{
-			//未初始化，从头开始
+			//暂时直接指定庄
+			this.mockDealerResult(1, 5);
 		}
 
 		//抢庄结果处理
-		public mockMainResult(seatId:number, multiple:number):void
+		public mockDealerResult(seatId:number, multiple:number):void
 		{
+			this.mockDealerSeatId = seatId;
+			this.mockDealerMultiple = multiple;
+
 			//公布抢庄结果
+			this.mockPubDealer();
 
 			//给庄家发送底牌信息
+			this.mockGivePocket();
 
 			//要求庄家喊主
+			this.mockAskMain();
+		}
+
+		//公布抢庄结果
+		public mockPubDealer():void
+		{
+			let msg:message.PubDealer = new message.PubDealer();
+			msg.dealSeatId = this.mockDealerSeatId;
+			msg.multiple = this.mockDealerMultiple;
+
+			this.mockSendMessage(msg);
+		}
+
+		//给庄家发送底牌信息
+		public mockGivePocket():void
+		{
+
+		}
+
+		//要求庄家喊主
+		public mockAskMain():void
+		{
+
+		}
+
+		//要求庄家放底牌
+		public mockAskPocket():void
+		{
+
 		}
 	}
 }

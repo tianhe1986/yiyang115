@@ -81,5 +81,25 @@ module game{
 		{
 			return this.cardManager.getCardNum();
 		}
+
+		//显示庄家标识
+		public showDealer():void
+		{
+			let seatView = this.getSeatView();
+			if (seatView === null) {
+				return;
+			}
+			(seatView.getChildByName("dealer") as Laya.Text).visible = true;
+		}
+
+		//隐藏庄家标识
+		public hideDealer():void
+		{
+			let seatView = this.getSeatView();
+			if (seatView === null) {
+				return;
+			}
+			(seatView.getChildByName("dealer") as Laya.Text).visible = false;
+		}
 	}
 }
