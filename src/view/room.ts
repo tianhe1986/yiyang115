@@ -11,6 +11,7 @@ module view{
 		public initButtons():void
 		{
 			this.cardOutButton.on(Laya.Event.CLICK, this, this.onCardOut);
+			this.putPocketButton.on(Laya.Event.CLICK, this, this.onPutPocket);
 		}
 
 		public initResult():void
@@ -44,9 +45,16 @@ module view{
 			(cell.getChildByName("score") as Laya.Text).text = arr[index][1];
 		}
 
+		//确定出牌
 		public onCardOut():void
 		{
 			game.Room.GetInstance().confirmCardOut();
+		}
+
+		//确定放底牌
+		public onPutPocket():void
+		{
+			game.Room.GetInstance().confirmPutPocket();
 		}
 
 		public showTips(str:string):void
@@ -108,6 +116,28 @@ module view{
 		public refreshMultiple(multiple:number):void
 		{
 			this.multiple.text = "倍数：X" + multiple;
+		}
+
+		//展示要求放底牌
+		public showPutPocket():void
+		{
+			this.putPocketBox.visible = true;
+		}
+
+		public hidePutPocket():void
+		{
+			this.putPocketBox.visible = false;
+		}
+
+		//展示放底牌按钮
+		public showConfirmPutPocket():void
+		{
+			this.putPocketButton.visible = true;
+		}
+
+		public hideConfirmPutPocket():void
+		{
+			this.putPocketButton.visible = false;
 		}
 
 		//展示喊主

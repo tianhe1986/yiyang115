@@ -18,6 +18,53 @@ module game{
 			return this.cardList;
 		}
 
+		public getSelectCardList():Array<Card>
+		{
+			let result:Array<Card> = [];
+			for (let i = 0, len = this.cardList.length; i < len; i++) {
+				if (this.cardList[i].getIsSelect()) {
+					result.push(this.cardList[i]);
+				}
+			}
+
+			return result;
+		}
+
+		//清除选中的牌
+		public clearSelectCards():void
+		{
+			for (let i = 0, len = this.cardList.length; i < len; i++) {
+				this.cardList[i].setIsSelect(false);
+			}
+		}
+
+		//移除手中的牌
+		public removeCard(cardId:number):void
+		{
+			for (let i = 0, len = this.cardList.length; i < len; i++) {
+				if (this.cardList[i].getCardId() == cardId) {
+					this.cardList.splice(i, 1);
+					break;
+				}
+			}
+		}
+
+		//移除手牌
+		public removeByCardIds(cardIds:Array<number>, isSelf:boolean = false):void
+		{
+			for (let i = 0, len = cardIds.length; i < len; i++) {
+				this.removeCard(cardIds[i]);
+			}
+			this.sortCardList();
+			this.setCardNum(this.cardList.length);
+
+			if (isSelf) {
+				this.refreshHandCardView();
+			} else {
+				
+			}
+		}
+
 		public getCardNum():number
 		{
 			return this.cardNum;
@@ -79,6 +126,14 @@ module game{
 				this.refreshHandCardView();
 			} else {
 				
+			}
+		}
+
+		public refreshHandCardPosition(isSelf:boolean = false):void
+		{
+			this.sortCardList();
+			if (isSelf) {
+				this.refreshHandCardView();
 			}
 		}
 

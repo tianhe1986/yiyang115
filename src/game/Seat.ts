@@ -72,6 +72,18 @@ module game{
 			this.refreshSeatInfo();
 		}
 
+		//移除手牌
+		public removeByCardIds(cardIds:Array<number>):void
+		{
+			this.cardManager.removeByCardIds(cardIds, this.getSeatId() == game.Room.GetInstance().getMySeatId());
+			this.refreshSeatInfo();
+		}
+
+		public refreshHandCardPosition():void
+		{
+			this.cardManager.refreshHandCardPosition(this.getSeatId() == game.Room.GetInstance().getMySeatId());
+		}
+
 		public refreshCard(cardIds:Array<number>):void
 		{
 			this.cardManager.refreshCard(cardIds, this.getSeatId() == game.Room.GetInstance().getMySeatId());
@@ -87,6 +99,17 @@ module game{
 		public getCardNum():number
 		{
 			return this.cardManager.getCardNum();
+		}
+
+		public getSelectCardList():Array<Card>
+		{
+			return this.cardManager.getSelectCardList();
+		}
+
+		//清除选中的牌
+		public clearSelectCards():void
+		{
+			this.cardManager.clearSelectCards();
 		}
 
 		//显示庄家标识

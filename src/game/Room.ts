@@ -299,6 +299,14 @@ module game{
 			}
 		}
 
+		//要求放底牌
+		public receiveAskPocket():void
+		{
+			this.isDealerPutPocket = true;
+			PageManager.GetInstance().getRoomView().showPutPocket();
+			this.calcuOutStatus();
+		}
+
 		//要求喊主
 		public receiveAskMain():void
 		{
@@ -315,22 +323,60 @@ module game{
 		public pubMain(mainType:number):void
 		{
 			this.mainType = mainType;
+			this.mySeat.refreshHandCardPosition();
 			PageManager.GetInstance().getRoomView().refreshMainType(mainType);
 		}
 
 		public isTurn():boolean
 		{
-			return false;
+			return (this.mySeatId == this.nowOutSeatId || this.isDealerPutPocket);
 		}
 
 		public calcuOutStatus():void
 		{
+			let roomView = PageManager.GetInstance().getRoomView();
+			if (this.mySeatId == this.nowOutSeatId) { //出牌阶段，检查当前牌是否可出
 
+			} else if (this.isDealerPutPocket) { //放底牌阶段，选中6张底牌即可
+				let cardList = Room.GetInstance().getMySeat().getSelectCardList();
+				if (cardList.length == 6) {
+					roomView.showConfirmPutPocket();
+				} else {
+					roomView.hideConfirmPutPocket();
+				}
+			} else {
+
+			}
 		}
 
+		//确定放置底牌
+		public confirmPutPocket():void
+		{
+			let cardList = Room.GetInstance().getMySeat().getSelectCardList();
+			if (cardList.length == 6) {
+				GameLogic.GetInstance().sendPutPocket(cardList);
+			}
+		}
+
+		//确定出牌
 		public confirmCardOut():void
 		{
 
+		}
+
+		//清除选中的牌
+		public clearSelectCards():void
+		{
+			this.mySeat.clearSelectCards();
+		}
+
+		//放底牌消息返回
+		public receivePutPocketResult(cardIds:Array<number>):void
+		{
+			this.isDealerPutPocket = false;
+			this.mySeat.clearSelectCards();
+			this.mySeat.removeByCardIds(cardIds);
+			PageManager.GetInstance().getRoomView().hideMainChoose();
 		}
 	}
 }

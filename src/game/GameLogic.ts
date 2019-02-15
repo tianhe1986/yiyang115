@@ -229,7 +229,55 @@ module game{
 		public mockAskPocket():void
 		{
 			//玩家是庄，发送
-			//TODO: 电脑是庄，直接放置底牌
+			if (this.mockDealerSeatId == Room.GetInstance().getMySeatId()) {
+				let msg:message.AskPocket = new message.AskPocket();
+				this.mockSendMessage(msg);
+			} else { //TODO: 电脑是庄，直接放置底牌
+
+			}
+		}
+
+		//发送庄家放底牌消息
+		public sendPutPocket(cardList:Array<game.Card>):void
+		{
+			let msg:message.DealerPutPocket = new message.DealerPutPocket();
+			let cardIds:Array<number> = [];
+			for (let i = 0, len = cardList.length; i < len; i++) {
+				cardIds.push(cardList[i].getCardId());
+			} 
+			msg.cardIds = cardIds;
+			net.SocketManager.GetInstance().sendMessage(msg);
+		}
+
+		//收到庄家放底牌消息
+		public mockHandlePutPocket(cardIds:Array<number>):void
+		{
+			if (this.matchAndClearSeatCard(this.mockDealerSeatId, cardIds)) {
+				//发送放底牌成功的消息
+				let msg:message.PutPocketResult = new message.PutPocketResult();
+				msg.cardIds = cardIds;
+				this.mockSendMessage(msg);
+
+				//进入下一阶段
+			}
+		}
+
+		//匹配并清除牌
+		public matchAndClearSeatCard(seatId:number, cardIds:Array<number>):boolean
+		{
+			for (let i = 0, len = cardIds.length; i < len; i++) {
+				let cardId = cardIds[i];
+				if (this.mockSeatCardMap[seatId][cardId] == undefined) {
+					return false;
+				}
+			}
+
+			for (let i = 0, len = cardIds.length; i < len; i++) {
+				let cardId = cardIds[i];
+				delete(this.mockSeatCardMap[seatId][cardId]);
+			}
+
+			return true;
 		}
 	}
 }

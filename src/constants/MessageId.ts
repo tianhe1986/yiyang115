@@ -15,13 +15,14 @@ module constants{
 		public static PUB_MAIN = 10; //公布主牌花色
 		public static ASK_POCKET = 11; //要求庄家放置底牌
 		public static DEALER_PUT_POCKET = 12; //庄家放置底牌
-		public static BEGIN_OUT = 13; //开始出牌阶段
-		public static OUT_TURN = 14; //轮到出牌
-		public static CARD_OUT = 15; //玩家出牌
-		public static PUB_CARD_OUT = 16; //广播玩家出牌
-		public static ROUND_RESULT = 17; //广播一轮结算结果
-		public static DEALER_SURRENDER = 18; //庄家投降
-		public static DEALER_LOOK_POCKET = 19; //庄家看底牌
+		public static PUT_POCKET_RESULT = 13; //庄家放置底牌结果
+		public static BEGIN_OUT = 14; //开始出牌阶段
+		public static OUT_TURN = 15; //轮到出牌
+		public static CARD_OUT = 16; //玩家出牌
+		public static PUB_CARD_OUT = 17; //广播玩家出牌
+		public static ROUND_RESULT = 18; //广播一轮结算结果
+		public static DEALER_SURRENDER = 19; //庄家投降
+		public static DEALER_LOOK_POCKET = 20; //庄家看底牌
 
 		private static _maps:Object;
 
@@ -37,8 +38,9 @@ module constants{
 			MessageId._maps[MessageId.ASK_MAIN] = message.AskMain;
 			MessageId._maps[MessageId.DEALER_GIVE_MAIN] = message.DealerGiveMain;
 			MessageId._maps[MessageId.PUB_MAIN] = message.PubMain;
-			/*MessageId._maps[MessageId.ASK_POCKET] = message.AskPocket;
-			MessageId._maps[MessageId.DEALER_PUT_POCKET] = message.DealerPutPocket;*/
+			MessageId._maps[MessageId.ASK_POCKET] = message.AskPocket;
+			MessageId._maps[MessageId.DEALER_PUT_POCKET] = message.DealerPutPocket;
+			MessageId._maps[MessageId.PUT_POCKET_RESULT] = message.PutPocketResult;
 		}
 		
 		public static GetProtocolNameById(pid:number):Function|null
