@@ -28,9 +28,15 @@ module game{
 		//主
 		protected mainType:number = 0;
 
+		//是否在放底牌阶段
+		protected isDealerPutPocket:boolean = false;
+
+		//当前出牌座位id
+		protected nowOutSeatId:number = 0;
+
 		//当前出牌
 
-		//当前大牌
+		//当前大者
 
 		public static GetInstance():Room
 		{
@@ -291,6 +297,25 @@ module game{
 			if (this.dealerSeatId == this.mySeatId) {
 				this.mySeat.addCard(cardIds);
 			}
+		}
+
+		//要求喊主
+		public receiveAskMain():void
+		{
+			PageManager.GetInstance().getRoomView().showMainChoose();
+		}
+
+		//喊主
+		public giveMain(mainType:number):void
+		{
+			GameLogic.GetInstance().sendDealerGiveMain(mainType);
+		}
+
+		//喊主结果公布处理
+		public pubMain(mainType:number):void
+		{
+			this.mainType = mainType;
+			PageManager.GetInstance().getRoomView().refreshMainType(mainType);
 		}
 
 		public isTurn():boolean

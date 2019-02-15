@@ -192,7 +192,37 @@ module game{
 		public mockAskMain():void
 		{
 			//玩家是庄，发送
-			//TODO: 电脑是庄，直接公布主花色
+			if (this.mockDealerSeatId == Room.GetInstance().getMySeatId()) {
+				let msg:message.AskMain = new message.AskMain();
+				this.mockSendMessage(msg);
+			} else { //TODO: 电脑是庄，直接公布主花色
+
+			}
+		}
+
+		//庄家喊主
+		public sendDealerGiveMain(mainType:number):void
+		{
+			let msg:message.DealerGiveMain = new message.DealerGiveMain();
+			msg.mainType = mainType;
+			net.SocketManager.GetInstance().sendMessage(msg);
+		}
+
+		//收到庄家喊主消息
+		public mockHandleGiveMain(msg:message.DealerGiveMain):void
+		{
+			this.mockMainType = msg.mainType;
+			//公布主
+			this.mockPubMain(msg.mainType);
+			//要求庄家放底牌
+			this.mockAskPocket();
+		}
+
+		public mockPubMain(mainType:number):void
+		{
+			let msg:message.PubMain = new message.PubMain();
+			msg.mainType = mainType;
+			this.mockSendMessage(msg);
 		}
 
 		//要求庄家放底牌

@@ -5,6 +5,7 @@ module view{
 			super();
 			this.initButtons();
 			this.initResult();
+			this.initMainChoose();
 		}
 
 		public initButtons():void
@@ -16,6 +17,20 @@ module view{
 		{
 			(this.result.getChildByName("resultList") as Laya.List).renderHandler = new Laya.Handler(this, this.resultItem);
 			this.result.getChildByName("confirm").on(Laya.Event.CLICK, this, this.onRestart);
+		}
+
+		public initMainChoose():void
+		{
+			for (let i = 1; i <= 5; i++) {
+				this.mainChoose.getChildByName("type" + i).on(Laya.Event.CLICK, this, this.giveMain, [i]);
+			}
+			
+		}
+
+		public giveMain(type:number):void
+		{
+			this.hideMainChoose();
+			game.Room.GetInstance().giveMain(type);
 		}
 
 		public resultItem(cell:Laya.Box,index:number):void
@@ -84,12 +99,32 @@ module view{
 			(this.leftSeat.getChildByName("outCard") as Laya.Box).visible = false;
 			(this.rightSeat.getChildByName("outCard") as Laya.Box).visible = false;
 			(this.oppositeSeat.getChildByName("outCard") as Laya.Box).visible = false;
+			this.multiple.text = "倍数：";
+			this.mainType.text = "主：未喊";
+			this.score.text = "闲家分数：0";
 		}
 
 		//刷新倍数
 		public refreshMultiple(multiple:number):void
 		{
 			this.multiple.text = "倍数：X" + multiple;
+		}
+
+		//展示喊主
+		public showMainChoose():void
+		{
+			this.mainChoose.visible = true;
+		}
+
+		//隐藏喊主
+		public hideMainChoose():void
+		{
+			this.mainChoose.visible = false;
+		}
+
+		public refreshMainType(mainType:number):void
+		{
+			this.mainType.text = "主：" + constants.MainType.getTypeName(mainType);
 		}
 	}
 }
