@@ -376,7 +376,7 @@ module game{
 			this.isDealerPutPocket = false;
 			this.mySeat.clearSelectCards();
 			this.mySeat.removeByCardIds(cardIds);
-			PageManager.GetInstance().getRoomView().hideMainChoose();
+			PageManager.GetInstance().getRoomView().hidePutPocket();
 		}
 	}
 }

@@ -154,8 +154,8 @@ module game{
 			//给庄家发送底牌信息
 			this.mockGivePocket();
 
-			//要求庄家喊主
-			this.mockAskMain();
+			//要求庄家放底牌
+			this.mockAskPocket();
 		}
 
 		//公布抢庄结果
@@ -214,10 +214,12 @@ module game{
 			this.mockMainType = msg.mainType;
 			//公布主
 			this.mockPubMain(msg.mainType);
-			//要求庄家放底牌
-			this.mockAskPocket();
+
+			//TODO 开始出牌
+			//TODO 第一个出牌者
 		}
 
+		//公布主
 		public mockPubMain(mainType:number):void
 		{
 			let msg:message.PubMain = new message.PubMain();
@@ -258,7 +260,8 @@ module game{
 				msg.cardIds = cardIds;
 				this.mockSendMessage(msg);
 
-				//进入下一阶段
+				//要求喊主
+				this.mockAskMain();
 			}
 		}
 
