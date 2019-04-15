@@ -41,6 +41,8 @@ module constants{
 			MessageId._maps[MessageId.ASK_POCKET] = message.AskPocket;
 			MessageId._maps[MessageId.DEALER_PUT_POCKET] = message.DealerPutPocket;
 			MessageId._maps[MessageId.PUT_POCKET_RESULT] = message.PutPocketResult;
+			MessageId._maps[MessageId.BEGIN_OUT] = message.BeginOut;
+			MessageId._maps[MessageId.OUT_TURN] = message.OutTurn;
 		}
 		
 		public static GetProtocolNameById(pid:number):Function|null

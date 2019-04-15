@@ -19,6 +19,21 @@ module game{
 		protected mockDealerSeatId:number = 0;
 		//倍数
 		protected mockDealerMultiple:number = 0;
+
+		//当前出牌座位
+		protected mockNowOutSeatId:number = 0;
+		//当前出牌数量
+		protected mockNowOutNum:number = 1;
+		//当前出牌类型
+		protected mockNowOutType:number = constants.CardType.INIT;
+
+		//当前大牌座位
+		protected mockNowMaxSeatId:number = 0;
+		//当前大牌
+		protected mockNowMaxCard:Card = null;
+
+		//闲家得分
+		protected mockNowLostScore:number = 0;
 		
 		public static GetInstance():GameLogic
 		{
@@ -215,8 +230,12 @@ module game{
 			//公布主
 			this.mockPubMain(msg.mainType);
 
-			//TODO 开始出牌
-			//TODO 第一个出牌者
+			this.mockBeginOut();
+
+			this.mockNowOutSeatId = this.mockDealerSeatId;
+			//TODO: 允许一次出多张牌
+			this.mockNowOutNum = 1;
+			this.mockOutTurn();
 		}
 
 		//公布主
@@ -281,6 +300,37 @@ module game{
 			}
 
 			return true;
+		}
+
+		//开始出牌阶段
+		public mockBeginOut():void
+		{
+			let msg:message.BeginOut = new message.BeginOut();
+			this.mockSendMessage(msg);
+		}
+
+		//下一个出牌者
+		public mockOutTurn():void
+		{
+			let msg:message.OutTurn = new message.OutTurn();
+
+			//当前出牌类型
+			msg.outType = this.mockNowOutType;
+			//当前出牌数量
+			msg.outNum = this.mockNowOutNum;
+
+			//如果下一个是自己，发送消息
+			if (this.mockNowOutSeatId == game.Room.GetInstance().getMySeatId()) {
+				this.mockSendMessage(msg);
+			} else { //不是自己
+				net.SocketManager.GetInstance().sendMessage(msg);
+			}
+		}
+
+		//处理电脑出牌
+		public mockHandleOutTurn():void
+		{
+			
 		}
 	}
 }

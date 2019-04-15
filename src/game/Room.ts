@@ -34,9 +34,18 @@ module game{
 		//当前出牌座位id
 		protected nowOutSeatId:number = 0;
 
-		//当前出牌
+		//当前出牌类型
+		protected nowOutType:number = constants.CardType.INIT;
+		//当前出牌数量
+		protected nowOutNum:number = 0;
 
-		//当前大者
+		//当前大牌座位
+		protected nowMaxSeatId:number = 0;
+		//当前大牌
+		protected nowMaxCard:Card = null;
+
+		//当前闲家得分
+		protected nowLostScore:number = 0;
 
 		public static GetInstance():Room
 		{
@@ -336,7 +345,23 @@ module game{
 		{
 			let roomView = PageManager.GetInstance().getRoomView();
 			if (this.mySeatId == this.nowOutSeatId) { //出牌阶段，检查当前牌是否可出
+				//获取所有选中的牌
+				let cardList = Room.GetInstance().getMySeat().getSelectCardList();
 
+				//出牌数量限制，TODO： 0时没有限制
+				if (this.nowOutNum != 0 && cardList.length != this.nowOutNum) {
+					roomView.hideCardOut();
+					return;
+				}
+
+				//当前没有限制出牌类型，则所有牌全部为同一类型即可
+				//当前限制了出牌类型，以下两种情况可出，1. 所有牌均为要求的类型。 2.选中的牌中有0张或多张要求的类型，而且除这几张牌外，手中再没有其他牌属于要求的类型
+
+				//现在只允许出一张牌，先简略处理
+				if (this.nowOutType == constants.CardType.INIT) {
+					roomView.showCardOut();
+					return;
+				}
 			} else if (this.isDealerPutPocket) { //放底牌阶段，选中6张底牌即可
 				let cardList = Room.GetInstance().getMySeat().getSelectCardList();
 				if (cardList.length == 6) {
@@ -377,6 +402,23 @@ module game{
 			this.mySeat.clearSelectCards();
 			this.mySeat.removeByCardIds(cardIds);
 			PageManager.GetInstance().getRoomView().hidePutPocket();
+		}
+
+		//开始出牌
+		public beginOut():void
+		{
+			this.nowOutType = constants.CardType.INIT;
+			this.nowOutNum = 0;
+			this.nowMaxCard = null;
+			this.nowLostScore = 0;
+		}
+
+		//轮到自己出牌了
+		public outTurn(outType:number, outNum:number):void
+		{
+			this.nowOutSeatId = this.mySeatId;
+			this.nowOutType = outType;
+			this.nowOutNum = outNum;
 		}
 	}
 }
