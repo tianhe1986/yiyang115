@@ -131,5 +131,11 @@ module game{
 			}
 			(seatView.getChildByName("dealer") as Laya.Text).visible = false;
 		}
+
+		//手中是否有某种类型的牌,主算单独的类型
+		public hasCardType(cardType:number):boolean
+		{
+			return this.cardManager.hasCardType(cardType);
+		}
 	}
 }

@@ -358,9 +358,37 @@ module game{
 				//当前限制了出牌类型，以下两种情况可出，1. 所有牌均为要求的类型。 2.选中的牌中有0张或多张要求的类型，而且除这几张牌外，手中再没有其他牌属于要求的类型
 
 				//现在只允许出一张牌，先简略处理
-				if (this.nowOutType == constants.CardType.INIT) {
-					roomView.showCardOut();
+				if (cardList.length != 1) {
+					roomView.hideCardOut();
 					return;
+				}
+
+				if (this.nowOutType == constants.CardType.INIT) { //未限制出牌类型,随便哪张都可以
+					roomView.showCardOut();
+				} else {
+					//如果牌型相同
+					let card = cardList[0];
+					if (this.nowOutType == constants.CardType.MAIN) { //需要出主
+						if (this.isMain(card)) { //也是主,当然可以
+							roomView.showCardOut();
+						} else { //检查有没有主
+							if (Room.GetInstance().getMySeat().hasCardType(this.nowOutType)) {
+								roomView.showCardOut();
+							} else {
+								roomView.hideCardOut();
+							}
+						}
+					} else { //需要副
+						if (card.getSuit() == this.nowOutType && ! this.isMain(card)) { //同类型的副
+							roomView.showCardOut();
+						} else { //检查对应的花色是不是真的出完了
+							if (Room.GetInstance().getMySeat().hasCardType(this.nowOutType)) {
+								roomView.showCardOut();
+							} else {
+								roomView.hideCardOut();
+							}
+						}
+					}
 				}
 			} else if (this.isDealerPutPocket) { //放底牌阶段，选中6张底牌即可
 				let cardList = Room.GetInstance().getMySeat().getSelectCardList();
@@ -370,8 +398,17 @@ module game{
 					roomView.hideConfirmPutPocket();
 				}
 			} else {
-
+				roomView.hideCardOut();
 			}
+		}
+
+		//判断一张牌是否是主
+		public isMain(card:Card):boolean
+		{
+			if (card.getPoint() >= 15) {
+				return true;
+			}
+			return card.getSuit() == this.getMainType();
 		}
 
 		//确定放置底牌
@@ -386,7 +423,8 @@ module game{
 		//确定出牌
 		public confirmCardOut():void
 		{
-
+			let cardList = Room.GetInstance().getMySeat().getSelectCardList();
+			GameLogic.GetInstance().sendCardOut(cardList);
 		}
 
 		//清除选中的牌

@@ -140,8 +140,8 @@ module game{
 		public sortCardList():void
 		{
 			this.cardList.sort((a:Card, b:Card) => {
-				let aMain = this.isMain(a);
-				let bMain = this.isMain(b);
+				let aMain = Room.GetInstance().isMain(a);
+				let bMain = Room.GetInstance().isMain(b);
 
 				//都是主，先比点数，再比正副，再看花色
 				//一主一副，主在前
@@ -181,15 +181,7 @@ module game{
 			});
 		}
 
-		//判断一张牌是否是主
-		public isMain(card:Card):boolean
-		{
-			if (card.getPoint() >= 15) {
-				return true;
-			}
-			return card.getSuit() == Room.GetInstance().getMainType();
-		}
-
+		//刷新手牌展示
 		public refreshHandCardView():void
 		{
 			let handCardView = PageManager.GetInstance().getRoomView().handCard;
@@ -203,6 +195,27 @@ module game{
 				cardView.y = this.cardList[i].getIsSelect() ? -75 : 0;
 				cardView.x = i * 42;
 			}
+		}
+
+		//手中是否有某种类型的牌,主算单独的类型
+		public hasCardType(cardType:number):boolean
+		{
+			let room = Room.GetInstance();
+			if (cardType == constants.CardType.MAIN) {
+				for (let i = 0, len = this.cardList.length; i < len; i++) {
+					if (room.isMain(this.cardList[i])) {
+						return true;
+					}
+				}
+			} else {
+				for (let i = 0, len = this.cardList.length; i < len; i++) {
+					if (this.cardList[i].getSuit() == cardType && ! room.isMain(this.cardList[i])) {
+						return true;
+					}
+				}
+			}
+
+			return false;
 		}
 	}
 }

@@ -327,8 +327,14 @@ module game{
 			}
 		}
 
-		//处理电脑出牌
+		//TODO 处理电脑出牌
 		public mockHandleOutTurn():void
+		{
+			
+		}
+
+		//TODO 发送出牌消息
+		public sendCardOut(cardList:Array<Card>):void
 		{
 			
 		}
