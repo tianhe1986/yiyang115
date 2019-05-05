@@ -43,6 +43,7 @@ module constants{
 			MessageId._maps[MessageId.PUT_POCKET_RESULT] = message.PutPocketResult;
 			MessageId._maps[MessageId.BEGIN_OUT] = message.BeginOut;
 			MessageId._maps[MessageId.OUT_TURN] = message.OutTurn;
+			MessageId._maps[MessageId.CARD_OUT] = message.CardOut;
 		}
 		
 		public static GetProtocolNameById(pid:number):Function|null

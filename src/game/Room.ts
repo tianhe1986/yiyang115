@@ -411,6 +411,49 @@ module game{
 			return card.getSuit() == this.getMainType();
 		}
 
+		//比较两张牌大小
+		public compareCard(a:Card, b:Card):number
+		{
+			let aMain = Room.GetInstance().isMain(a);
+			let bMain = Room.GetInstance().isMain(b);
+
+			//都是主，先比点数，再比正副，再看花色
+			//一主一副，主在前
+			//两副，先比花色，再比点数
+			if (aMain) {
+				if (bMain) {
+					let diffPoint = b.getPoint() - a.getPoint();
+					if (diffPoint != 0) {
+						return diffPoint;
+					} else {
+						let mainType = Room.GetInstance().getMainType();
+						if (a.getSuit() == mainType) {
+							return -1;
+						} else {
+							if (b.getSuit() == mainType) {
+								return 1;
+							} else {
+								return a.getSuit() - b.getSuit();
+							}
+						}
+					}
+				} else {
+					return -1;
+				}
+			} else {
+				if (bMain) {
+					return 1;
+				} else {
+					let diffSuit = a.getSuit() - b.getSuit();
+					if (diffSuit != 0) {
+						return diffSuit;
+					} else {
+						return b.getCardId() - a.getCardId();
+					}
+				}
+			}
+		}
+
 		//确定放置底牌
 		public confirmPutPocket():void
 		{
@@ -424,7 +467,7 @@ module game{
 		public confirmCardOut():void
 		{
 			let cardList = Room.GetInstance().getMySeat().getSelectCardList();
-			GameLogic.GetInstance().sendCardOut(cardList);
+			GameLogic.GetInstance().sendCardOut(this.mySeatId, cardList);
 		}
 
 		//清除选中的牌

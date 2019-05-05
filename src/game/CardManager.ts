@@ -139,46 +139,7 @@ module game{
 
 		public sortCardList():void
 		{
-			this.cardList.sort((a:Card, b:Card) => {
-				let aMain = Room.GetInstance().isMain(a);
-				let bMain = Room.GetInstance().isMain(b);
-
-				//都是主，先比点数，再比正副，再看花色
-				//一主一副，主在前
-				//两副，先比花色，再比点数
-				if (aMain) {
-					if (bMain) {
-						let diffPoint = b.getPoint() - a.getPoint();
-						if (diffPoint != 0) {
-							return diffPoint;
-						} else {
-							let mainType = Room.GetInstance().getMainType();
-							if (a.getSuit() == mainType) {
-								return -1;
-							} else {
-								if (b.getSuit() == mainType) {
-									return 1;
-								} else {
-									return a.getSuit() - b.getSuit();
-								}
-							}
-						}
-					} else {
-						return -1;
-					}
-				} else {
-					if (bMain) {
-						return 1;
-					} else {
-						let diffSuit = a.getSuit() - b.getSuit();
-						if (diffSuit != 0) {
-							return diffSuit;
-						} else {
-							return b.getCardId() - a.getCardId();
-						}
-					}
-				}
-			});
+			this.cardList.sort(Room.GetInstance().compareCard);
 		}
 
 		//刷新手牌展示

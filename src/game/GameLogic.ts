@@ -20,6 +20,8 @@ module game{
 		//倍数
 		protected mockDealerMultiple:number = 0;
 
+		//当前首个出牌座位
+		protected mockOutBeginSeatId:number = 0;
 		//当前出牌座位
 		protected mockNowOutSeatId:number = 0;
 		//当前出牌数量
@@ -232,6 +234,7 @@ module game{
 
 			this.mockBeginOut();
 
+			this.mockOutBeginSeatId = this.mockDealerSeatId;
 			this.mockNowOutSeatId = this.mockDealerSeatId;
 			//TODO: 允许一次出多张牌
 			this.mockNowOutNum = 1;
@@ -302,6 +305,38 @@ module game{
 			return true;
 		}
 
+		//是否有特定类型的牌
+		public hasCardType(seatId:number, cardType:number):boolean
+		{
+			let room = Room.GetInstance();
+			
+
+			
+			if (cardType == constants.CardType.MAIN) {
+				for (let cardId in this.mockSeatCardMap[seatId]) {
+					let card:Card = this.getAvailableCard();
+					card.setCardId(parseInt(cardId));
+					if (room.isMain(card)) {
+						this.recoverCard(card);
+						return true;
+					}
+					this.recoverCard(card);
+				}
+			} else {
+				for (let cardId in this.mockSeatCardMap[seatId]) {
+					let card:Card = this.getAvailableCard();
+					card.setCardId(parseInt(cardId));
+					if (card.getSuit() == cardType && ! room.isMain(card)) {
+						this.recoverCard(card);
+						return true;
+					}
+					this.recoverCard(card);
+				}
+			}
+
+			return false;
+		}
+
 		//开始出牌阶段
 		public mockBeginOut():void
 		{
@@ -334,9 +369,102 @@ module game{
 		}
 
 		//TODO 发送出牌消息
-		public sendCardOut(cardList:Array<Card>):void
+		public sendCardOut(seatId:number, cardList:Array<game.Card>):void
 		{
-			
+			let msg:message.CardOut = new message.CardOut();
+			let cardIds:Array<number> = [];
+			for (let i = 0, len = cardList.length; i < len; i++) {
+				cardIds.push(cardList[i].getCardId());
+			}
+			msg.seatId = seatId;
+			msg.outCardIds = cardIds;
+			net.SocketManager.GetInstance().sendMessage(msg);
+		}
+
+		//收到出牌消息
+		public mockHandleCardOut(seatId:number, cardIds:Array<number>):void
+		{
+			//检查当前要求出牌座位是否符合
+			if (this.mockNowOutSeatId != seatId) {
+				return;
+			}
+
+			if (this.mockNowOutNum != cardIds.length) {
+				return;
+			}
+
+			//检查当前出牌是否符合
+			let cardList:Array<Card> = [];
+			for (let i = 0, len = cardIds.length; i < len; i++) {
+				//TODO: 这里回收有点麻烦, 暂时懒得写了
+				let newCard = new Card();
+				newCard.setCardId(cardIds[i]);
+				cardList.push(newCard);
+			}
+
+			//当前是第一个人, 随便一张都可以,在清除手中牌时再判断
+			let room:Room = Room.GetInstance();
+			let card:Card = cardList[0];
+			let tempNowOutType:number = this.mockNowOutType;
+			let tempNowMaxCard:Card = this.mockNowMaxCard;
+			if (this.mockOutBeginSeatId == seatId) {
+				if (room.isMain(card)) {
+					tempNowOutType = constants.CardType.MAIN;
+				} else {
+					tempNowOutType = card.getSuit();
+				}
+				tempNowMaxCard = card;
+			} else { //当前不是第一个人,检查类型
+				if (this.mockNowOutType == constants.CardType.MAIN) { //需要出主
+					if (room.isMain(card)) { //也是主,当然可以
+						//如果比最大的还大,则设置
+						if (room.compareCard(card, tempNowMaxCard) < 0) { //新的牌比较大
+							tempNowMaxCard = card;
+						}
+					} else { //检查有没有主
+						if ( ! this.hasCardType(seatId, this.mockNowOutType)) {
+							return;
+						}
+						//不是主,肯定小,不用比了
+					}
+				} else { //需要副
+					if (card.getSuit() == this.mockNowOutType && ! room.isMain(card)) { //同类型的副
+						if (card.getPoint() > tempNowMaxCard.getPoint()) {
+							tempNowMaxCard = card;
+						}
+					} else { //检查对应的花色是不是真的出完了
+						if ( ! this.hasCardType(seatId, this.mockNowOutType)) {
+							return;
+						}
+						//如果是主,更大,否则小
+						if (room.isMain(card)) {
+							tempNowMaxCard = card;
+						}
+					}
+				}
+			}
+
+			//清除手中的牌
+			if (this.matchAndClearSeatCard(seatId, cardIds)) {
+				//设置大牌
+				//发放出牌消息,带上当前大牌信息
+				//下一个出牌者座位
+				//如果不是最后一个,给下一个发出牌消息
+				//是最后一个,延迟两秒结算,并进入下一回合
+			}
+		}
+
+		public getAvailableCard():Card
+		{
+			//TODO: 使用poolManager
+			//return new Card();
+			return Laya.Pool.getItemByClass("card", Card);
+		}
+
+		public recoverCard(card:Card):void
+		{
+			card.recover();
+			Laya.Pool.recover("card", card);
 		}
 	}
 }
