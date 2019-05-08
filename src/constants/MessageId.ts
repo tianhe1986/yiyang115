@@ -44,6 +44,7 @@ module constants{
 			MessageId._maps[MessageId.BEGIN_OUT] = message.BeginOut;
 			MessageId._maps[MessageId.OUT_TURN] = message.OutTurn;
 			MessageId._maps[MessageId.CARD_OUT] = message.CardOut;
+			MessageId._maps[MessageId.PUB_CARD_OUT] = message.PubCardOut;
 		}
 		
 		public static GetProtocolNameById(pid:number):Function|null

@@ -33,6 +33,8 @@ module game{
 		protected mockNowMaxSeatId:number = 0;
 		//当前大牌
 		protected mockNowMaxCard:Card = null;
+		//当前回合分数之和
+		protected mockNowRoundScore:number = 0;
 
 		//闲家得分
 		protected mockNowLostScore:number = 0;
@@ -368,7 +370,7 @@ module game{
 			
 		}
 
-		//TODO 发送出牌消息
+		//发送出牌消息
 		public sendCardOut(seatId:number, cardList:Array<game.Card>):void
 		{
 			let msg:message.CardOut = new message.CardOut();
@@ -400,6 +402,12 @@ module game{
 				let newCard = new Card();
 				newCard.setCardId(cardIds[i]);
 				cardList.push(newCard);
+				let point:number = newCard.getPoint();
+				if (point == 5 || point == 10) {
+					this.mockNowRoundScore += point;
+				} else if (point == 13) { //老K算10分
+					this.mockNowRoundScore += 10;
+				}
 			}
 
 			//当前是第一个人, 随便一张都可以,在清除手中牌时再判断
@@ -407,6 +415,7 @@ module game{
 			let card:Card = cardList[0];
 			let tempNowOutType:number = this.mockNowOutType;
 			let tempNowMaxCard:Card = this.mockNowMaxCard;
+			let tempNowMaxSeatId:number = this.mockNowMaxSeatId;
 			if (this.mockOutBeginSeatId == seatId) {
 				if (room.isMain(card)) {
 					tempNowOutType = constants.CardType.MAIN;
@@ -420,6 +429,7 @@ module game{
 						//如果比最大的还大,则设置
 						if (room.compareCard(card, tempNowMaxCard) < 0) { //新的牌比较大
 							tempNowMaxCard = card;
+							tempNowMaxSeatId = seatId;
 						}
 					} else { //检查有没有主
 						if ( ! this.hasCardType(seatId, this.mockNowOutType)) {
@@ -431,6 +441,7 @@ module game{
 					if (card.getSuit() == this.mockNowOutType && ! room.isMain(card)) { //同类型的副
 						if (card.getPoint() > tempNowMaxCard.getPoint()) {
 							tempNowMaxCard = card;
+							tempNowMaxSeatId = seatId;
 						}
 					} else { //检查对应的花色是不是真的出完了
 						if ( ! this.hasCardType(seatId, this.mockNowOutType)) {
@@ -439,6 +450,7 @@ module game{
 						//如果是主,更大,否则小
 						if (room.isMain(card)) {
 							tempNowMaxCard = card;
+							tempNowMaxSeatId = seatId;
 						}
 					}
 				}
@@ -447,11 +459,30 @@ module game{
 			//清除手中的牌
 			if (this.matchAndClearSeatCard(seatId, cardIds)) {
 				//设置大牌
-				//发放出牌消息,带上当前大牌信息
+				this.mockNowMaxCard = tempNowMaxCard;
+				this.mockNowMaxSeatId = tempNowMaxSeatId;
+				//出牌广播,带上当前大牌座位信息
+				this.mockPubCardOut(seatId, cardIds, this.mockNowMaxSeatId);
 				//下一个出牌者座位
-				//如果不是最后一个,给下一个发出牌消息
-				//是最后一个,延迟两秒结算,并进入下一回合
+				this.mockNowOutSeatId = this.mockNowOutSeatId + 1;
+				if (this.mockNowOutSeatId != this.mockOutBeginSeatId) { //是最后一个,延迟两秒结算,并进入下一回合
+					this.mockRoundEnd();
+				} else { //如果不是最后一个,给下一个发出牌消息
+					this.mockOutTurn();
+				}
 			}
+		}
+
+		//出牌广播
+		public mockPubCardOut(seatId:number, cardIds:Array<number>, nowMaxSeatId:number):void
+		{
+
+		}
+
+		//当前回合结束
+		public mockRoundEnd():void
+		{
+			
 		}
 
 		public getAvailableCard():Card
