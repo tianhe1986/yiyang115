@@ -33,6 +33,8 @@ module game{
 		protected mockNowMaxSeatId:number = 0;
 		//当前大牌
 		protected mockNowMaxCard:Card = null;
+		//当前庄家是否已经出过牌
+		protected mockNowDealOut:boolean = false;
 		//当前回合分数之和
 		protected mockNowRoundScore:number = 0;
 
@@ -364,10 +366,254 @@ module game{
 			}
 		}
 
-		//TODO 处理电脑出牌
+		//处理电脑出牌
 		public mockHandleOutTurn():void
 		{
-			
+			/**
+			 * 暂时先只考虑不为庄的情况
+			 * 如果是首个出牌者，选一张为副且不是分的牌来出
+			 * 如果不是首个出牌者，分以下几种情况：
+			 * 1. 庄家已经出过牌，且庄家最大。如果能大，则大，不能大，选一张不是分的打出去
+			 * 2. 庄家已经出过牌，且不是最大。赶紧上分。
+			 * 3. 庄家还未出牌，庄家有可能为大。
+			 * 		庄家有同花色副，能管则管上，不能管不出分。
+			 * 		庄家没有同花色副。自己也没有同花色副，能用主管则用主管上。自己有同花色5分则出。
+			 * 4. 庄家还未出牌，但不可能为大。赶紧上分
+			 *    
+			 */
+
+			let seatId = this.mockNowOutSeatId;
+			if (seatId == game.Room.GetInstance().getMySeatId()) {
+				return;
+			}
+			if (this.mockNowOutType == constants.CardType.INIT) {
+				// 先乱搞乱发财，随机选一张出了再说
+				let cardIds = [];
+				for (let cardId in this.mockSeatCardMap[seatId]) {
+					cardIds.push(cardId);
+				}
+
+				let index = Math.ceil((cardIds.length - 1) * Math.random());
+				let card:game.Card = this.getAvailableCard();
+				card.setCardId(cardIds[index]); 
+				this.sendCardOut(seatId, [card]);
+				this.recoverCard(card);
+			} else {
+
+				// TODO: 始终保存一份当前牌集
+				//当前牌集
+				let cardTypeMap = {};
+				let cardList:Array<game.Card> = [];
+				let room:Room = Room.GetInstance();
+
+				for (let cardId in this.mockSeatCardMap[seatId]) {
+					let card:game.Card = this.getAvailableCard();
+					card.setCardId(parseInt(cardId));
+					cardList.push(card);
+					let key = room.isMain(card) ? constants.CardType.MAIN : card.getSuit();
+					if (cardTypeMap[key] == undefined) {
+						cardTypeMap[key] = [];
+					}
+					cardTypeMap[key].push(card);
+				}
+
+				let cardCount:number = cardList.length;
+				if (1 == cardCount) { //就剩一张了，没啥好说的吧
+					this.sendCardOut(seatId, cardList);
+					return;
+				}
+
+				let isDealerBig:boolean = (this.mockDealerSeatId == this.mockNowMaxSeatId);
+				let typeNum:number = 0;
+				if (this.mockNowOutType == constants.CardType.MAIN) { //需要出主
+					if (isDealerBig) {
+						if (cardTypeMap[constants.CardType.MAIN]) { //有主， 努力管上，管不上则出最小的主
+							typeNum = cardTypeMap[constants.CardType.MAIN].length;
+							cardTypeMap[constants.CardType.MAIN].sort(room.compareCard);
+							if (room.compareCard(cardTypeMap[constants.CardType.MAIN][0], this.mockNowMaxCard) > 0) { //管不上
+
+								for (let i = typeNum - 1; i >= 0; i--) {
+									let point:number = cardTypeMap[constants.CardType.MAIN][i].getPoint();
+									if (point != 5 && point != 10 && point != 13) {
+										this.sendCardOut(seatId, [cardTypeMap[constants.CardType.MAIN][i]]);
+										return;
+									}
+								}
+
+								this.sendCardOut(seatId, [cardTypeMap[constants.CardType.MAIN][typeNum - 1]]);
+								return;
+							} else { // 找分或是最小的能管上的
+								for (let i = 0; i < typeNum; i++) {
+									let point:number = cardTypeMap[constants.CardType.MAIN][i].getPoint();
+									if (point == 5 || point == 10 || point == 13) {
+										this.sendCardOut(seatId, [cardTypeMap[constants.CardType.MAIN][i]]);
+										return;
+									}
+
+									if (room.compareCard(cardTypeMap[constants.CardType.MAIN][i], this.mockNowMaxCard) > 0) {
+										this.sendCardOut(seatId, [cardTypeMap[constants.CardType.MAIN][i - 1]]);
+										return;
+									}
+								}
+
+								this.sendCardOut(seatId, [cardTypeMap[constants.CardType.MAIN][typeNum - 1]]);
+								return;
+							}
+						} else { // 没有主，随机丢一张，乱搞乱发财
+							let index = Math.ceil((cardCount - 1) * Math.random());
+							this.sendCardOut(seatId, [cardList[index]]);
+							return;
+						}
+					} else { //
+						if (cardTypeMap[constants.CardType.MAIN]) { //有主
+							typeNum = cardTypeMap[constants.CardType.MAIN].length;
+							cardTypeMap[constants.CardType.MAIN].sort(room.compareCard);
+							if (this.mockNowDealOut) { // 庄家出过了，能上分就上分
+								for (let i = 0; i < typeNum; i++) {
+									let point:number = cardTypeMap[constants.CardType.MAIN][i].getPoint();
+									if (point == 5 || point == 10 || point == 13) {
+										this.sendCardOut(seatId, [cardTypeMap[constants.CardType.MAIN][i]]);
+										return;
+									}
+								}
+
+								this.sendCardOut(seatId, [cardTypeMap[constants.CardType.MAIN][typeNum - 1]]);
+							} else { // TODO： 如何评估庄家有没有可能大
+								let index = Math.ceil((typeNum - 1) * Math.random());
+								this.sendCardOut(seatId, [cardTypeMap[constants.CardType.MAIN][index]]);
+							}
+							
+							return;
+						} else { // 没有主
+							// 庄家出过了，能上分就上分
+							if (this.mockNowDealOut) {
+								for (let i = 0; i < cardCount; i++) {
+									let point:number = cardList[i].getPoint();
+									if (point == 5 || point == 10 || point == 13) {
+										this.sendCardOut(seatId, [cardList[i]]);
+										return;
+									}
+								}
+							}
+
+							// 随机丢一张，乱搞乱发财
+							let index = Math.ceil((cardCount - 1) * Math.random());
+							this.sendCardOut(seatId, [cardList[index]]);
+							return;
+						}
+					}
+				} else { //需要副
+					let nowOutType = this.mockNowOutType;
+					if (isDealerBig) {
+						if (cardTypeMap[nowOutType]) { //有同样的副
+							typeNum = cardTypeMap[nowOutType].length;
+							cardTypeMap[nowOutType].sort(room.compareCard);
+							if (room.compareCard(cardTypeMap[nowOutType][0], this.mockNowMaxCard) > 0) { //管不上
+								for (let i = typeNum - 1; i >= 0; i--) {
+									let point:number = cardTypeMap[nowOutType][i].getPoint();
+									if (point != 5 && point != 10 && point != 13) {
+										this.sendCardOut(seatId, [cardTypeMap[nowOutType][i]]);
+										return;
+									}
+								}
+
+								this.sendCardOut(seatId, [cardTypeMap[nowOutType][typeNum - 1]]);
+								return;
+							} else { // 找分或是最小的能管上的
+								for (let i = 0; i < typeNum; i++) {
+									let point:number = cardTypeMap[nowOutType][i].getPoint();
+									if (point == 5 || point == 10 || point == 13) {
+										this.sendCardOut(seatId, [cardTypeMap[nowOutType][i]]);
+										return;
+									}
+
+									if (room.compareCard(cardTypeMap[nowOutType][i], this.mockNowMaxCard) > 0) {
+										this.sendCardOut(seatId, [cardTypeMap[nowOutType][i - 1]]);
+										return;
+									}
+								}
+
+								this.sendCardOut(seatId, [cardTypeMap[nowOutType][typeNum - 1]]);
+								return;
+							}
+						} else { // 没有, 先努力用主管上
+							if (cardTypeMap[constants.CardType.MAIN]) { //有主， 努力管上，管不上则出最小的主
+								typeNum = cardTypeMap[constants.CardType.MAIN].length;
+								cardTypeMap[constants.CardType.MAIN].sort(room.compareCard);
+								if (room.compareCard(cardTypeMap[constants.CardType.MAIN][0], this.mockNowMaxCard) > 0) { //管不上
+
+									for (let i = typeNum - 1; i >= 0; i--) {
+										let point:number = cardTypeMap[constants.CardType.MAIN][i].getPoint();
+										if (point != 5 && point != 10 && point != 13) {
+											this.sendCardOut(seatId, [cardTypeMap[constants.CardType.MAIN][i]]);
+											return;
+										}
+									}
+
+									this.sendCardOut(seatId, [cardTypeMap[constants.CardType.MAIN][typeNum - 1]]);
+									return;
+								} else { // 找分或是最小的能管上的
+									for (let i = 0; i < typeNum; i++) {
+										let point:number = cardTypeMap[constants.CardType.MAIN][i].getPoint();
+										if (point == 5 || point == 10 || point == 13) {
+											this.sendCardOut(seatId, [cardTypeMap[constants.CardType.MAIN][i]]);
+											return;
+										}
+
+										if (room.compareCard(cardTypeMap[constants.CardType.MAIN][i], this.mockNowMaxCard) > 0) {
+											this.sendCardOut(seatId, [cardTypeMap[constants.CardType.MAIN][i - 1]]);
+											return;
+										}
+									}
+
+									this.sendCardOut(seatId, [cardTypeMap[constants.CardType.MAIN][typeNum - 1]]);
+									return;
+								}
+							} else { // 没有主，随机丢一张，乱搞乱发财
+								let index = Math.ceil((cardCount - 1) * Math.random());
+								this.sendCardOut(seatId, [cardList[index]]);
+								return;
+							}
+						}
+					} else {
+						if (cardTypeMap[nowOutType]) { //有同样的副
+							typeNum = cardTypeMap[nowOutType].length;
+							cardTypeMap[nowOutType].sort(room.compareCard);
+							if (this.mockNowDealOut) { // 庄家出过了， 上分
+								for (let i = 0; i < typeNum; i++) {
+									let point:number = cardTypeMap[nowOutType][i].getPoint();
+									if (point == 5 || point == 10 || point == 13) {
+										this.sendCardOut(seatId, [cardTypeMap[nowOutType][i]]);
+										return;
+									}
+								}
+
+								this.sendCardOut(seatId, [cardTypeMap[nowOutType][typeNum - 1]]);
+								return;
+							} else { // 没有，随机出
+								let index = Math.ceil((cardCount - 1) * Math.random());
+								this.sendCardOut(seatId, [cardList[index]]);
+								return;
+							}
+						} else {
+							if (this.mockNowDealOut) { // 庄家出过了， 上分
+								for (let i = 0; i < cardCount; i++) {
+									let point:number = cardList[i].getPoint();
+									if (point == 5 || point == 10 || point == 13) {
+										this.sendCardOut(seatId, [cardList[i]]);
+										return;
+									}
+								}
+							}
+							
+							// 没有，随机出
+							let index = Math.ceil((cardCount - 1) * Math.random());
+							this.sendCardOut(seatId, [cardList[index]]);
+							return;
+						}
+					}
+				}
+			}
 		}
 
 		//发送出牌消息
@@ -461,6 +707,9 @@ module game{
 				//设置大牌
 				this.mockNowMaxCard = tempNowMaxCard;
 				this.mockNowMaxSeatId = tempNowMaxSeatId;
+				if (seatId == this.mockDealerSeatId) {
+					this.mockNowDealOut = true;
+				}
 				//出牌广播,带上当前大牌座位信息
 				this.mockPubCardOut(seatId, cardIds, this.mockNowMaxSeatId);
 				//下一个出牌者座位
