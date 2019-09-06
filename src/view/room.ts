@@ -103,10 +103,10 @@ module view{
 			this.hideMock();
 			this.showTips("");
 			this.handCard.removeChildren();
-			(this.mySeat.getChildByName("outCard") as Laya.Box).visible = false;
-			(this.leftSeat.getChildByName("outCard") as Laya.Box).visible = false;
-			(this.rightSeat.getChildByName("outCard") as Laya.Box).visible = false;
-			(this.oppositeSeat.getChildByName("outCard") as Laya.Box).visible = false;
+			(this.mySeat.getChildByName("outCard") as Laya.Box).removeChildren();
+			(this.leftSeat.getChildByName("outCard") as Laya.Box).removeChildren();
+			(this.rightSeat.getChildByName("outCard") as Laya.Box).removeChildren();
+			(this.oppositeSeat.getChildByName("outCard") as Laya.Box).removeChildren();
 			this.multiple.text = "倍数：";
 			this.mainType.text = "主：未喊";
 			this.score.text = "闲家分数：0";

@@ -491,6 +491,7 @@ module game{
 			this.nowOutType = constants.CardType.INIT;
 			this.nowOutNum = 0;
 			this.nowMaxCard = null;
+			this.nowMaxSeatId = 0;
 			this.nowLostScore = 0;
 		}
 
@@ -500,6 +501,21 @@ module game{
 			this.nowOutSeatId = this.mySeatId;
 			this.nowOutType = outType;
 			this.nowOutNum = outNum;
+		}
+
+		//接收到出牌消息
+		public cardOut(seatId:number, outCardIds:Array<number>, maxSeatId:number):void
+		{
+			PageManager.GetInstance().getRoomView().hideCardOut();
+			//清除手牌
+			let seat = this.getSeat(seatId);
+			seat.removeByCardIds(outCardIds);
+
+			//出牌区展示出的牌
+			seat.showOutCards(outCardIds);
+
+			//更新当前最大的位置
+			this.nowMaxSeatId = maxSeatId;
 		}
 	}
 }

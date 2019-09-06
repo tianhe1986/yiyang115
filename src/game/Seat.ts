@@ -137,5 +137,22 @@ module game{
 		{
 			return this.cardManager.hasCardType(cardType);
 		}
+
+		//展示出牌
+		public showOutCards(outCardIds:Array<number>):void
+		{
+			let seatView = this.getSeatView();
+
+			for (let i = 0, len = outCardIds.length; i < len; i++) {
+				let newCard = this.cardManager.getAvailableCard();
+				console.log("展示出牌 " + outCardIds[i]);
+				newCard.setCardId(outCardIds[i]);
+				newCard.recover();
+				let cardView = newCard.getCardView();
+				(seatView.getChildByName("outCard")).addChild(cardView);
+				cardView.y = 0;
+				cardView.x = i * 42;
+			}
+		}
 	}
 }
