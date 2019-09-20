@@ -30,7 +30,11 @@ module message{
 		public mockSend():void
 		{
 			//轮到电脑了，参数都没啥用
-			game.GameLogic.GetInstance().mockHandleOutTurn();
+
+			//延迟一秒处理
+			Laya.timer.once(1000, this, () => {
+				game.GameLogic.GetInstance().mockHandleOutTurn();
+			});
 		}
 	}
 }

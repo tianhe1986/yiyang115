@@ -154,5 +154,11 @@ module game{
 				cardView.x = i * 42;
 			}
 		}
+
+		//清除出牌
+		public clearOutCards():void
+		{
+			(this.getSeatView().getChildByName("outCard") as Laya.Box).removeChildren();
+		}
 	}
 }

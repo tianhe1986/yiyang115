@@ -719,7 +719,7 @@ module game{
 					this.mockNowOutSeatId = 1;
 				}
 				if (this.mockNowOutSeatId == this.mockOutBeginSeatId) { //是最后一个,延迟两秒结算,并进入下一回合
-					this.mockRoundEnd();
+					Laya.timer.once(3000, this, this.mockRoundEnd);
 				} else { //如果不是最后一个,给下一个发出牌消息
 					this.mockOutTurn();
 				}
@@ -739,7 +739,45 @@ module game{
 		//当前回合结束
 		public mockRoundEnd():void
 		{
-			
+			//广播此轮结算结果
+			let score:number = this.mockNowRoundScore;
+
+			if (this.mockNowMaxSeatId == this.mockDealerSeatId) { //庄家大，那就没有
+				score = 0;
+			}
+			this.mockNowLostScore += score;
+
+			this.sendRoundResult(this.mockNowMaxSeatId, score);
+
+			this.clearRoundInfo();
+
+			// TODO 所有牌都出完了，结算
+			//下一轮出牌
+			this.mockOutTurn();
+		}
+
+		// 一轮结果广播
+		public sendRoundResult(seatId: number, score:number):void
+		{
+			let msg:message.RoundResult = new message.RoundResult();
+			msg.maxSeatId = seatId;
+			msg.score = score;
+			this.mockSendMessage(msg);
+		}
+
+		// 清除一轮信息
+		public clearRoundInfo():void
+		{
+			this.mockOutBeginSeatId = this.mockNowMaxSeatId;
+			this.mockNowOutSeatId = this.mockNowMaxSeatId;
+	
+			this.mockNowOutNum = 1;
+			this.mockNowOutType = constants.CardType.INIT;
+
+			this.mockNowMaxSeatId = 0;
+			this.mockNowMaxCard = null;
+			this.mockNowDealOut = false;
+			this.mockNowRoundScore = 0;
 		}
 
 		public getAvailableCard():Card

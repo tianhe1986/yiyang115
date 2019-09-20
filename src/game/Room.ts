@@ -517,5 +517,23 @@ module game{
 			//更新当前最大的位置
 			this.nowMaxSeatId = maxSeatId;
 		}
+
+		//接收到一轮结算消息
+		public roundResult(maxSeatId:number, score:number):void
+		{
+			//TODO: maxSeatId有啥用
+
+			this.nowLostScore += score;
+
+			//更新分数
+			let roomView = PageManager.GetInstance().getRoomView();
+			roomView.score.text = "闲家分数：" + this.nowLostScore;
+
+			//清除当前出牌
+			this.mySeat.clearOutCards();
+			this.leftSeat.clearOutCards();
+			this.rightSeat.clearOutCards();
+			this.oppositeSeat.clearOutCards();
+		}
 	}
 }
