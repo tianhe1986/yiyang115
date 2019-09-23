@@ -386,6 +386,7 @@ module game{
 			if (seatId == game.Room.GetInstance().getMySeatId()) {
 				return;
 			}
+			game.Room.GetInstance().setNowOutSeatId(seatId);
 			if (this.mockNowOutType == constants.CardType.INIT) {
 				// 先乱搞乱发财，随机选一张出了再说
 				let cardIds = [];
@@ -591,8 +592,8 @@ module game{
 								this.sendCardOut(seatId, [cardTypeMap[nowOutType][typeNum - 1]]);
 								return;
 							} else { // 没有，随机出
-								let index = Math.ceil((cardCount - 1) * Math.random());
-								this.sendCardOut(seatId, [cardList[index]]);
+								let index = Math.ceil((typeNum - 1) * Math.random());
+								this.sendCardOut(seatId, [cardTypeMap[nowOutType][index]]);
 								return;
 							}
 						} else {
@@ -619,6 +620,7 @@ module game{
 		//发送出牌消息
 		public sendCardOut(seatId:number, cardList:Array<game.Card>):void
 		{
+			console.log(seatId + " 发送出牌消息" + cardList[0].getSuit() + " " + cardList[0].getPoint());
 			let msg:message.CardOut = new message.CardOut();
 			let cardIds:Array<number> = [];
 			for (let i = 0, len = cardList.length; i < len; i++) {
@@ -669,6 +671,7 @@ module game{
 					tempNowOutType = card.getSuit();
 				}
 				tempNowMaxCard = card;
+				tempNowMaxSeatId = seatId;
 			} else { //当前不是第一个人,检查类型
 				if (this.mockNowOutType == constants.CardType.MAIN) { //需要出主
 					if (room.isMain(card)) { //也是主,当然可以
@@ -678,7 +681,8 @@ module game{
 							tempNowMaxSeatId = seatId;
 						}
 					} else { //检查有没有主
-						if ( ! this.hasCardType(seatId, this.mockNowOutType)) {
+						if (this.hasCardType(seatId, this.mockNowOutType)) { //还有主，说明乱出牌
+							console.log("手里还有主，不能乱出");
 							return;
 						}
 						//不是主,肯定小,不用比了
@@ -690,7 +694,8 @@ module game{
 							tempNowMaxSeatId = seatId;
 						}
 					} else { //检查对应的花色是不是真的出完了
-						if ( ! this.hasCardType(seatId, this.mockNowOutType)) {
+						if (this.hasCardType(seatId, this.mockNowOutType)) { //没出完，说明乱出牌
+							console.log("手里还有对应的副，不能乱出");
 							return;
 						}
 						//如果是主,更大,否则小

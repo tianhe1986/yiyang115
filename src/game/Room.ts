@@ -350,6 +350,7 @@ module game{
 
 				//出牌数量限制，TODO： 0时没有限制
 				if (this.nowOutNum != 0 && cardList.length != this.nowOutNum) {
+					console.log("数量不符，不允许出");
 					roomView.hideCardOut();
 					return;
 				}
@@ -359,6 +360,7 @@ module game{
 
 				//现在只允许出一张牌，先简略处理
 				if (cardList.length != 1) {
+					console.log("数量不符，不允许出");
 					roomView.hideCardOut();
 					return;
 				}
@@ -372,9 +374,10 @@ module game{
 						if (this.isMain(card)) { //也是主,当然可以
 							roomView.showCardOut();
 						} else { //检查有没有主
-							if (Room.GetInstance().getMySeat().hasCardType(this.nowOutType)) {
+							if ( ! Room.GetInstance().getMySeat().hasCardType(this.nowOutType)) {
 								roomView.showCardOut();
 							} else {
+								console.log("需要主却不出主，不允许出");
 								roomView.hideCardOut();
 							}
 						}
@@ -382,9 +385,10 @@ module game{
 						if (card.getSuit() == this.nowOutType && ! this.isMain(card)) { //同类型的副
 							roomView.showCardOut();
 						} else { //检查对应的花色是不是真的出完了
-							if (Room.GetInstance().getMySeat().hasCardType(this.nowOutType)) {
+							if ( ! Room.GetInstance().getMySeat().hasCardType(this.nowOutType)) {
 								roomView.showCardOut();
 							} else {
+								console.log("需要花色" + this.nowOutType +"却不出，不允许出");
 								roomView.hideCardOut();
 							}
 						}
@@ -501,6 +505,11 @@ module game{
 			this.nowOutSeatId = this.mySeatId;
 			this.nowOutType = outType;
 			this.nowOutNum = outNum;
+		}
+
+		public setNowOutSeatId(seatId: number):void
+		{
+			this.nowOutSeatId= seatId;
 		}
 
 		//接收到出牌消息
