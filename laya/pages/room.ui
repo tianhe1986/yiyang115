@@ -2,7 +2,7 @@
     "x":0,
     "type":"View",
     "selectedBox":1,
-    "selecteID":64,
+    "selecteID":6,
     "props":{"width":1334,"sceneColor":"#000000","height":750,"centerY":0.5,"centerX":0.5},
     "nodeParent":-1,
     "label":"View",
@@ -514,118 +514,6 @@
         },
         {
             "x":15,
-            "type":"Box",
-            "props":{"y":0,"x":0,"visible":false,"var":"mock"},
-            "nodeParent":1,
-            "label":"Box(mock)",
-            "isOpen":false,
-            "isDirectory":true,
-            "isAniNode":true,
-            "hasChild":true,
-            "compId":6,
-            "child":[
-                {
-                    "type":"Rect",
-                    "props":{"y":0,"x":0,"width":1334,"lineWidth":0,"height":750,"fillColor":"#000000"},
-                    "nodeParent":6,
-                    "label":"Rect",
-                    "isDirectory":false,
-                    "isAniNode":true,
-                    "hasChild":false,
-                    "compId":7,
-                    "child":[
-                        ]
-                }],
-            "$HIDDEN":true
-        },
-        {
-            "x":15,
-            "type":"Box",
-            "props":{"y":119,"x":527,"visible":false,"var":"result"},
-            "nodeParent":1,
-            "label":"Box(result)",
-            "isOpen":null,
-            "isDirectory":true,
-            "isAniNode":true,
-            "hasChild":true,
-            "compId":48,
-            "child":[
-                {
-                    "type":"Text",
-                    "props":{"x":53,"text":"本局得分","fontSize":32,"font":"Microsoft YaHei","color":"#ffffff"},
-                    "nodeParent":48,
-                    "label":"Text",
-                    "isDirectory":false,
-                    "isAniNode":true,
-                    "hasChild":false,
-                    "compId":47,
-                    "child":[
-                        ]
-                },
-                {
-                    "type":"List",
-                    "props":{"y":61,"width":206,"spaceY":10,"name":"resultList","height":161},
-                    "nodeParent":48,
-                    "label":"List(resultList)",
-                    "isOpen":false,
-                    "isDirectory":true,
-                    "isAniNode":true,
-                    "hasChild":true,
-                    "compId":45,
-                    "child":[
-                        {
-                            "type":"Box",
-                            "props":{"renderType":"render"},
-                            "nodeParent":45,
-                            "label":"Box",
-                            "isOpen":true,
-                            "isDirectory":true,
-                            "isAniNode":false,
-                            "hasChild":true,
-                            "compId":44,
-                            "child":[
-                                {
-                                    "type":"Text",
-                                    "props":{"text":"昵称","name":"nickname","fontSize":32,"font":"Microsoft YaHei","color":"#ffffff"},
-                                    "nodeParent":44,
-                                    "label":"Text(nickname)",
-                                    "isDirectory":false,
-                                    "isAniNode":false,
-                                    "hasChild":false,
-                                    "compId":42,
-                                    "child":[
-                                        ]
-                                },
-                                {
-                                    "type":"Text",
-                                    "props":{"x":142,"text":"得分","name":"score","fontSize":32,"font":"Microsoft YaHei","color":"#ffffff"},
-                                    "nodeParent":44,
-                                    "label":"Text(score)",
-                                    "isDirectory":false,
-                                    "isAniNode":false,
-                                    "hasChild":false,
-                                    "compId":43,
-                                    "child":[
-                                        ]
-                                }]
-                        }]
-                },
-                {
-                    "type":"Button",
-                    "props":{"y":265,"x":56,"width":123,"visible":false,"skin":"comp/button.png","name":"confirm","labelSize":30,"labelFont":"SimHei","label":"确定","height":53},
-                    "nodeParent":48,
-                    "label":"Button(confirm)",
-                    "isDirectory":false,
-                    "isAniNode":true,
-                    "hasChild":false,
-                    "compId":46,
-                    "child":[
-                        ]
-                }],
-            "$HIDDEN":true
-        },
-        {
-            "x":15,
             "type":"Text",
             "props":{"y":39,"x":1075,"width":127,"var":"multiple","text":"倍数：X0","height":40,"fontSize":28,"font":"Microsoft YaHei","color":"#ffffff","align":"left"},
             "nodeParent":1,
@@ -786,6 +674,135 @@
                     "child":[
                         ]
                 }]
+        },
+        {
+            "x":15,
+            "type":"Box",
+            "props":{"y":0,"x":0,"visible":false,"var":"mock"},
+            "nodeParent":1,
+            "label":"Box(mock)",
+            "isOpen":false,
+            "isDirectory":true,
+            "isAniNode":true,
+            "hasChild":true,
+            "compId":6,
+            "child":[
+                {
+                    "type":"Rect",
+                    "props":{"y":0,"x":0,"width":1334,"lineWidth":0,"height":750,"fillColor":"#000000"},
+                    "nodeParent":6,
+                    "label":"Rect",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":7,
+                    "child":[
+                        ]
+                }],
+            "$HIDDEN":true
+        },
+        {
+            "x":15,
+            "type":"Box",
+            "props":{"y":511,"x":479,"width":513,"visible":false,"var":"pocketCard","height":150},
+            "nodeParent":1,
+            "label":"Box(pocketCard)",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":72,
+            "child":[
+                ],
+            "$HIDDEN":true
+        },
+        {
+            "x":15,
+            "type":"Box",
+            "props":{"y":119,"x":527,"visible":false,"var":"result"},
+            "nodeParent":1,
+            "label":"Box(result)",
+            "isOpen":true,
+            "isDirectory":true,
+            "isAniNode":true,
+            "hasChild":true,
+            "compId":48,
+            "child":[
+                {
+                    "x":30,
+                    "type":"Text",
+                    "props":{"x":53,"text":"本局得分","name":"resultTxt","fontSize":32,"font":"Microsoft YaHei","color":"#ffffff"},
+                    "nodeParent":48,
+                    "label":"Text(resultTxt)",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":47,
+                    "child":[
+                        ]
+                },
+                {
+                    "x":30,
+                    "type":"List",
+                    "props":{"y":61,"width":206,"spaceY":10,"name":"resultList","height":161},
+                    "nodeParent":48,
+                    "label":"List(resultList)",
+                    "isOpen":false,
+                    "isDirectory":true,
+                    "isAniNode":true,
+                    "hasChild":true,
+                    "compId":45,
+                    "child":[
+                        {
+                            "type":"Box",
+                            "props":{"renderType":"render"},
+                            "nodeParent":45,
+                            "label":"Box",
+                            "isOpen":true,
+                            "isDirectory":true,
+                            "isAniNode":false,
+                            "hasChild":true,
+                            "compId":44,
+                            "child":[
+                                {
+                                    "type":"Text",
+                                    "props":{"text":"昵称","name":"nickname","fontSize":32,"font":"Microsoft YaHei","color":"#ffffff"},
+                                    "nodeParent":44,
+                                    "label":"Text(nickname)",
+                                    "isDirectory":false,
+                                    "isAniNode":false,
+                                    "hasChild":false,
+                                    "compId":42,
+                                    "child":[
+                                        ]
+                                },
+                                {
+                                    "type":"Text",
+                                    "props":{"x":142,"text":"得分","name":"score","fontSize":32,"font":"Microsoft YaHei","color":"#ffffff"},
+                                    "nodeParent":44,
+                                    "label":"Text(score)",
+                                    "isDirectory":false,
+                                    "isAniNode":false,
+                                    "hasChild":false,
+                                    "compId":43,
+                                    "child":[
+                                        ]
+                                }]
+                        }]
+                },
+                {
+                    "x":30,
+                    "type":"Button",
+                    "props":{"y":265,"x":56,"width":123,"skin":"comp/button.png","name":"confirm","labelSize":30,"labelFont":"SimHei","label":"确定","height":53},
+                    "nodeParent":48,
+                    "label":"Button(confirm)",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":46,
+                    "child":[
+                        ]
+                }],
+            "$HIDDEN":true
         }],
     "animations":[
         {
