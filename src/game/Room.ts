@@ -6,7 +6,7 @@ module game{
 
 		protected static instance:Room;
 
-		public static SCORE_KEY = "score_map";
+		public static SCORE_KEY = "115_score_map";
 		protected isSingle:boolean = false;
 
 		protected userInfo:user.UserInfo = null;
@@ -415,8 +415,50 @@ module game{
 			return card.getSuit() == this.getMainType();
 		}
 
-		//比较两张牌大小
+		// 比较两张牌大小
+		// a是新出的牌，b是之前出的牌
+		// 返回 负数 表示a 大 正数表示b大
+		// 如果一样大，则根据优先原则，b更大
 		public compareCard(a:Card, b:Card):number
+		{
+			let aMain = Room.GetInstance().isMain(a);
+			let bMain = Room.GetInstance().isMain(b);
+
+			//都是主，先比点数，再比正副，再看花色
+			//一主一副，主在前
+			//两副，先比花色，再比点数
+			if (aMain) {
+				if (bMain) {
+					let diffPoint = b.getPoint() - a.getPoint();
+					if (diffPoint != 0) {
+						return diffPoint;
+					} else {
+						let mainType = Room.GetInstance().getMainType();
+						if (a.getSuit() == mainType) { //新出的是主花色，更大
+							return -1;
+						} else {
+							return 1;
+						}
+					}
+				} else {
+					return -1;
+				}
+			} else {
+				if (bMain) {
+					return 1;
+				} else {
+					if (a.getSuit() != b.getSuit()) { //花色不同，自然是之前的大
+						return 1;
+					} else {
+						return b.getCardId() - a.getCardId();
+					}
+				}
+			}
+		}
+
+		// 比较两张牌大小，用于展示，即花色也区分大小
+		// 返回 负数 表示a 大， 正数表示b大
+		public compareCardForShow(a:Card, b:Card):number
 		{
 			let aMain = Room.GetInstance().isMain(a);
 			let bMain = Room.GetInstance().isMain(b);
@@ -543,6 +585,61 @@ module game{
 			this.leftSeat.clearOutCards();
 			this.rightSeat.clearOutCards();
 			this.oppositeSeat.clearOutCards();
+		}
+
+		//接收到游戏结束消息
+		public gameOver(pocketCardIds:Array<number>, score:number, isDealerWin:boolean, dealerScore:number, otherScore:number):void
+		{
+			let roomView = PageManager.GetInstance().getRoomView();
+			let userManager = user.UserManager.GetInstance();
+
+			// 展示底牌
+			this.showPockets(pocketCardIds);
+
+			// 展示得分及结果
+			let resultTxt:string = "庄家胜利";
+			if ( ! isDealerWin) {
+				resultTxt = "闲家胜利";
+			}
+			resultTxt += ", 闲家抢到分数为" + score;
+
+			let resultList = [];
+			for (let seatId in this.seatMap) {
+				let userInfo = this.seatMap[seatId].getUserInfo();
+				if (parseInt(seatId) == this.dealerSeatId) {
+					resultList.push([userInfo.getNickname(), dealerScore]);
+					userInfo.setScore(userInfo.getScore() + dealerScore);
+				} else {
+					resultList.push([userInfo.getNickname(), otherScore]);
+					userInfo.setScore(userInfo.getScore() + otherScore);
+				}
+			}
+
+			//保存分值
+			this.refreshAndSaveScore();
+
+			roomView.showResult(resultTxt, resultList);
+		}
+
+		public showPockets(cardIds:Array<number>):void
+		{
+			let pocketBox = PageManager.GetInstance().getRoomView().pocketCard;
+			pocketBox.removeChildren();
+			pocketBox.visible = true;
+			for (let i = 0, len = cardIds.length; i < len; i++) {
+				let newCard = this.getAvailableCard();
+				newCard.setCardId(cardIds[i]);
+				newCard.recover();
+				let cardView = newCard.getCardView();
+				pocketBox.addChild(cardView);
+				cardView.y = 0;
+				cardView.x = i * 105;
+			}
+		}
+
+		public getAvailableCard():Card
+		{
+			return Laya.Pool.getItemByClass("card", Card);
 		}
 	}
 }

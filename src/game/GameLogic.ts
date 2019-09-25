@@ -13,6 +13,8 @@ module game{
 		protected mockPocketList:Array<number> = [];
 		//庄家放置的底牌
 		protected mockDealerPocketList:Array<number> = [];
+		//庄家放置的底牌分数
+		protected mockDealerPocketScore:number = 0;
 		//主
 		protected mockMainType:number = 0;
 		//庄家座位
@@ -51,7 +53,7 @@ module game{
 		}
 
 		constructor(){
-			this.mockClearSeatCard();
+
 		}
 
 		public mockClearSeatCard():void
@@ -66,12 +68,38 @@ module game{
 			net.SocketManager.GetInstance().onMessageReveived(JSON.stringify(msgObj));
 		}
 
+		public clearGameInfo():void
+		{
+			this.mockSeatUserMap = {};
+			this.mockSeatCardMap = {};
+
+			this.mockPocketList = [];
+			this.mockDealerPocketList = [];
+			this.mockDealerPocketScore = 0;
+			this.mockMainType = 0;
+			this.mockDealerSeatId = 0;
+			this.mockDealerMultiple = 0;
+
+			this.mockOutBeginSeatId = 0;
+			this.mockNowOutSeatId = 0;
+			this.mockNowOutNum = 1;
+			this.mockNowOutType = constants.CardType.INIT;
+
+			this.mockNowMaxSeatId = 0;
+			this.mockNowMaxCard = null;
+			this.mockNowDealOut = false;
+			this.mockNowRoundScore = 0;
+			this.mockNowLostScore = 0;
+		}
+
 		public startGame():void
 		{
 			if ( ! Room.GetInstance().getIsSingle()) {
 				return;
 			}
 
+			this.clearGameInfo();
+			this.mockClearSeatCard();
 			this.mockStart();
 			this.mockGiveCard();
 
@@ -281,6 +309,21 @@ module game{
 		public mockHandlePutPocket(cardIds:Array<number>):void
 		{
 			if (this.matchAndClearSeatCard(this.mockDealerSeatId, cardIds)) {
+				//记录底牌和底牌里的分数
+				this.mockDealerPocketList = cardIds;
+				this.mockDealerPocketScore = 0;
+				for (let i = 0, len = cardIds.length; i < len; i++) {
+					let newCard = this.getAvailableCard();
+					newCard.setCardId(cardIds[i]);
+					let point:number = newCard.getPoint();
+					if (point == 5 || point == 10) {
+						this.mockDealerPocketScore += point;
+					} else if (point == 13) { //老K算10分
+						this.mockDealerPocketScore += 10;
+					}
+					this.recoverCard(newCard);
+				}
+
 				//发送放底牌成功的消息
 				let msg:message.PutPocketResult = new message.PutPocketResult();
 				msg.cardIds = cardIds;
@@ -444,12 +487,13 @@ module game{
 								this.sendCardOut(seatId, [cardTypeMap[constants.CardType.MAIN][typeNum - 1]]);
 								return;
 							} else { // 找分或是最小的能管上的
+								//TODO 出分的策略
 								for (let i = 0; i < typeNum; i++) {
-									let point:number = cardTypeMap[constants.CardType.MAIN][i].getPoint();
+									/*let point:number = cardTypeMap[constants.CardType.MAIN][i].getPoint();
 									if (point == 5 || point == 10 || point == 13) {
 										this.sendCardOut(seatId, [cardTypeMap[constants.CardType.MAIN][i]]);
 										return;
-									}
+									}*/
 
 									if (room.compareCard(cardTypeMap[constants.CardType.MAIN][i], this.mockNowMaxCard) > 0) {
 										this.sendCardOut(seatId, [cardTypeMap[constants.CardType.MAIN][i - 1]]);
@@ -724,7 +768,7 @@ module game{
 					this.mockNowOutSeatId = 1;
 				}
 				if (this.mockNowOutSeatId == this.mockOutBeginSeatId) { //是最后一个,延迟两秒结算,并进入下一回合
-					Laya.timer.once(3000, this, this.mockRoundEnd);
+					Laya.timer.once(1500, this, this.mockRoundEnd);
 				} else { //如果不是最后一个,给下一个发出牌消息
 					this.mockOutTurn();
 				}
@@ -754,11 +798,67 @@ module game{
 
 			this.sendRoundResult(this.mockNowMaxSeatId, score);
 
-			this.clearRoundInfo();
-
 			// TODO 所有牌都出完了，结算
+			if (this.isAllCardOut()) {
+				this.mockGameResult();
+				return;
+			}
+
 			//下一轮出牌
+			this.clearRoundInfo();
 			this.mockOutTurn();
+		}
+
+		// 是否牌都出完了
+		private isAllCardOut():boolean
+		{
+			//只会在当前回合结束时调用，因此判断1号座位手里还有没有牌就行
+			for (let i in this.mockSeatCardMap[1]) {
+				return false;
+			}
+			return true;
+		}
+
+		// 发送本局游戏结果
+		public mockGameResult():void
+		{
+			//最后一个回合， 再判断一次谁的牌大
+			if (this.mockNowMaxSeatId != this.mockDealerSeatId) { //扣底
+				this.mockNowLostScore += this.mockDealerPocketScore;
+			}
+
+			let isDealWin:boolean = null; //是否庄家获胜
+			let dealerScore:number = 0; // 庄家得分
+			let otherScore:number = 0; //其他人得分， 有3 * otherScore + dealScore = 0
+			// 40分垮庄， 每20分一个档
+			if (this.mockNowLostScore < 40) {
+				isDealWin = true;
+				if (this.mockNowLostScore == 0) {
+					otherScore = -3 * this.mockDealerMultiple;
+				} else {
+					otherScore = - this.mockDealerMultiple * (1 + Math.floor((35 - this.mockNowLostScore)/20));
+				}
+				
+			} else {
+				isDealWin = false;
+				otherScore = this.mockDealerMultiple * (1 + Math.floor((this.mockNowLostScore - 40)/20));
+			}
+
+			dealerScore = -3 * otherScore;
+
+			this.sendGameOver(this.mockDealerPocketList, this.mockNowLostScore, isDealWin, dealerScore, otherScore);
+		}
+
+		// 游戏结束
+		public sendGameOver(pocketCardsIds:Array<number>, score:number, isDealerWin:boolean, dealerScore:number, otherScore:number):void
+		{
+			let msg:message.GameOver = new message.GameOver();
+			msg.pocketCardsIds = pocketCardsIds,
+			msg.score = score;
+			msg.isDealerWin = isDealerWin;
+			msg.dealerScore = dealerScore;
+			msg.otherScore = otherScore;
+			this.mockSendMessage(msg);
 		}
 
 		// 一轮结果广播
@@ -787,8 +887,6 @@ module game{
 
 		public getAvailableCard():Card
 		{
-			//TODO: 使用poolManager
-			//return new Card();
 			return Laya.Pool.getItemByClass("card", Card);
 		}
 

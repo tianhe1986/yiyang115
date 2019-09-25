@@ -78,10 +78,10 @@ module view{
 			game.GameLogic.GetInstance().startGame();
 		}
 
-		public showResult(winner:string, resultList:Array<any>):void
+		public showResult(resultTxt:string, resultList:Array<any>):void
 		{
 			(this.result.getChildByName("resultList") as Laya.List).array = resultList;
-			(this.result.getChildByName("winner") as Laya.Text).text = winner;
+			(this.result.getChildByName("resultTxt") as Laya.Text).text = resultTxt;
 
 			this.showMock();
 			this.result.visible = true;
@@ -99,6 +99,7 @@ module view{
 
 		public clearAll():void
 		{
+			this.pocketCard.visible = false;
 			this.result.visible = false;
 			this.hideMock();
 			this.showTips("");

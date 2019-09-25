@@ -46,6 +46,7 @@ module constants{
 			MessageId._maps[MessageId.CARD_OUT] = message.CardOut;
 			MessageId._maps[MessageId.PUB_CARD_OUT] = message.PubCardOut;
 			MessageId._maps[MessageId.ROUND_RESULT] = message.RoundResult;
+			MessageId._maps[MessageId.GAME_OVER] = message.GameOver;
 		}
 		
 		public static GetProtocolNameById(pid:number):Function|null

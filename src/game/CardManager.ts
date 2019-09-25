@@ -139,7 +139,7 @@ module game{
 
 		public sortCardList():void
 		{
-			this.cardList.sort(Room.GetInstance().compareCard);
+			this.cardList.sort(Room.GetInstance().compareCardForShow);
 		}
 
 		//刷新手牌展示
