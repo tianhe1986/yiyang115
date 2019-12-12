@@ -719,11 +719,7 @@ module game{
 			} else { //当前不是第一个人,检查类型
 				if (this.mockNowOutType == constants.CardType.MAIN) { //需要出主
 					if (room.isMain(card)) { //也是主,当然可以
-						//如果比最大的还大,则设置
-						if (room.compareCard(card, tempNowMaxCard) < 0) { //新的牌比较大
-							tempNowMaxCard = card;
-							tempNowMaxSeatId = seatId;
-						}
+
 					} else { //检查有没有主
 						if (this.hasCardType(seatId, this.mockNowOutType)) { //还有主，说明乱出牌
 							console.log("手里还有主，不能乱出");
@@ -732,22 +728,20 @@ module game{
 						//不是主,肯定小,不用比了
 					}
 				} else { //需要副
-					if (card.getSuit() == this.mockNowOutType && ! room.isMain(card)) { //同类型的副
-						if (card.getPoint() > tempNowMaxCard.getPoint()) {
-							tempNowMaxCard = card;
-							tempNowMaxSeatId = seatId;
-						}
+					if (card.getSuit() == this.mockNowOutType && ! room.isMain(card)) { //同类型的副，当然可以
+
 					} else { //检查对应的花色是不是真的出完了
 						if (this.hasCardType(seatId, this.mockNowOutType)) { //没出完，说明乱出牌
 							console.log("手里还有对应的副，不能乱出");
 							return;
 						}
-						//如果是主,更大,否则小
-						if (room.isMain(card)) {
-							tempNowMaxCard = card;
-							tempNowMaxSeatId = seatId;
-						}
 					}
+				}
+
+				// 比较牌大小
+				if (room.compareCard(card, tempNowMaxCard) < 0) { //新的牌比较大
+					tempNowMaxCard = card;
+					tempNowMaxSeatId = seatId;
 				}
 			}
 
